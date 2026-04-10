@@ -276,7 +276,7 @@ const scrapeParamsSchema = z.object({
   jsonOptions: z
     .object({
       prompt: z.string().optional(),
-      schema: z.record(z.string(), z.any()).optional(),
+      schema: z.any().optional(),
     })
     .optional(),
   queryOptions: z
@@ -675,7 +675,7 @@ server.addTool({
       ? {}
       : {
           webhook: z.string().optional(),
-          webhookHeaders: z.record(z.string(), z.string()).optional(),
+          webhookHeaders: z.any().optional(),
         }),
     deduplicateSimilarURLs: z.boolean().optional(),
     ignoreQueryParameters: z.boolean().optional(),
@@ -775,7 +775,7 @@ Extract structured information from web pages using LLM capabilities. Supports b
   parameters: z.object({
     urls: z.array(z.string()),
     prompt: z.string().optional(),
-    schema: z.record(z.string(), z.any()).optional(),
+    schema: z.any().optional(),
     allowExternalLinks: z.boolean().optional(),
     enableWebSearch: z.boolean().optional(),
     includeSubdomains: z.boolean().optional(),
@@ -877,7 +877,7 @@ Then poll with \`firecrawl_agent_status\` every 15-30 seconds for at least 2-3 m
   parameters: z.object({
     prompt: z.string().min(1).max(10000),
     urls: z.array(z.string().url()).optional(),
-    schema: z.record(z.string(), z.any()).optional(),
+    schema: z.any().optional(),
   }),
   execute: async (
     args: unknown,
