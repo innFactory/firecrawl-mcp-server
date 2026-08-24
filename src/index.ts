@@ -903,6 +903,9 @@ const SEARCH_PROFILE_TOOLS = new Set<string>([
   'firecrawl_research_search_github',
 ]);
 
+// innFactory fork: environment-driven tool allowlist (src/tool-allowlist.ts).
+import { envToolAllowlist } from './tool-allowlist.js';
+
 function makeFullProfile(): ServerProfile {
   const account = getPrimaryEndpoint() === '/v2/mcp-oauth';
   return {
@@ -921,6 +924,9 @@ function makeFullProfile(): ServerProfile {
       account && process.env.MCP_OAUTH_ACCEPT_LEGACY_V2_MCP_AUD !== 'false',
     advertiseOAuth: account,
     primary: true,
+    // innFactory fork: narrow the exposed tool surface via FIRECRAWL_MCP_TOOLS.
+    // undefined when unset => upstream behaviour, byte-compatible default.
+    toolAllowlist: envToolAllowlist(),
   };
 }
 
@@ -1518,7 +1524,7 @@ const scrapeParamsSchema = z.object({
   jsonOptions: z
     .object({
       prompt: z.string().optional(),
-      schema: z.record(z.string(), z.any()).optional(),
+      schema: z.any().optional(),
     })
     .optional(),
   queryOptions: z
@@ -1602,7 +1608,7 @@ const parseOptionParamsSchema = z.object({
   jsonOptions: z
     .object({
       prompt: z.string().optional(),
-      schema: z.record(z.string(), z.any()).optional(),
+      schema: z.any().optional(),
     })
     .optional(),
   queryOptions: z
@@ -2541,7 +2547,7 @@ Returns submission status, feedback ID, and accounting fields.
       querySuggestions: z.string().max(2000).optional(),
       url: z.string().url().optional(),
       pageNumbers: z.array(z.number().int().positive()).max(100).optional(),
-      metadata: z.record(z.string(), z.unknown()).optional(),
+      metadata: z.any().optional(),
     }),
     execute: async (args: unknown, { session, log }): Promise<string> => {
       const {
@@ -2664,7 +2670,7 @@ Crawl results can be large; use conservative limits when full-site coverage is u
       ? {}
       : {
           webhook: z.string().optional(),
-          webhookHeaders: z.record(z.string(), z.string()).optional(),
+          webhookHeaders: z.any().optional(),
         }),
     deduplicateSimilarURLs: z.boolean().optional(),
     ignoreQueryParameters: z.boolean().optional(),
@@ -2754,7 +2760,7 @@ Deprecated compatibility entry point. Use firecrawl_scrape once per known URL wi
   parameters: z.object({
     urls: z.array(z.string()),
     prompt: z.string().optional(),
-    schema: z.record(z.string(), z.any()).optional(),
+    schema: z.any().optional(),
     allowExternalLinks: z.boolean().optional(),
     enableWebSearch: z.boolean().optional(),
     includeSubdomains: z.boolean().optional(),
@@ -2790,7 +2796,7 @@ This call returns only a job ID, not the research result. Read the job with \`fi
   parameters: z.object({
     prompt: z.string().min(1).max(10000),
     urls: z.array(z.string().url()).optional(),
-    schema: z.record(z.string(), z.any()).optional(),
+    schema: z.any().optional(),
   }),
   execute: async (args: unknown, { session, log }): Promise<string> => {
     const client = getClient(session);

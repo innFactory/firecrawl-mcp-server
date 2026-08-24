@@ -1,0 +1,47 @@
+# innFactory fork addition — NOT upstream.
+#
+# Deliberately a NEW file rather than an edit to upstream's image.yml, so
+# upstream workflow changes keep merging cleanly. Upstream's own image.yml
+# pushes to ghcr.io/firecrawl/... on every push to main and is irrelevant here
+# (it never runs on this fork's tags).
+#
+# Triggered by tags of the form v<upstream-version>-inn.<n>, e.g. v3.24.0-inn.1.
+name: Build innFactory image
+
+on:
+  push:
+    tags:
+      - 'v*-inn.*'
+  workflow_dispatch:
+
+jobs:
+  push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Derive image tag from the git tag
+        id: meta
+        run: echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build and push service image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.service
+          push: true
+          tags: |
+            ghcr.io/innfactory/firecrawl-mcp-server:${{ steps.meta.outputs.tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
