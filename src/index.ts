@@ -953,8 +953,8 @@ const openAiAppsChallengeToken = normalizeHeader(
   process.env.OPENAI_APPS_CHALLENGE_TOKEN
 );
 
-const FULL_PROFILE_INSTRUCTIONS = `Firecrawl provides web search, page retrieval, site URL discovery, multi-page collection, structured page data, monitoring, and asynchronous research. Match the requested operation to the tool boundary: firecrawl_scrape retrieves one supplied page and can return JSON matching a supplied schema, firecrawl_map enumerates URLs under a site without retrieving their content, and firecrawl_agent starts multi-source research whose result is read with firecrawl_agent_status. For biomedical, life-science, clinical, or arXiv literature, the firecrawl_research_* tools search a paper index of abstracts and full text; firecrawl_search with categories: ["research"] is a website filter over ordinary web results and reaches different sources. For a programming question — code behaviour, a library or framework, an API contract, an error message, or a known bug — firecrawl_developer_search (or firecrawl_search with categories: ["developer"]) searches an index of repositories, GitHub issues, merged pull requests, READMEs, and curated documentation sites. Provide only the required inputs and account for stated network or external side effects.`;
-const KEYLESS_PROFILE_INSTRUCTIONS = `Hosted keyless sessions expose firecrawl_search, firecrawl_scrape, and firecrawl_parse with usage limits. firecrawl_search searches the web. For programming questions, firecrawl_search with categories: ["developer"] searches indexed repositories, GitHub issues, merged pull requests, repository READMEs, and curated documentation sites. For biomedical, life-science, clinical, or arXiv literature, firecrawl_search with categories: ["research"] filters ordinary web results to research-affiliated websites. firecrawl_scrape retrieves one supplied page and can return JSON matching a supplied schema. firecrawl_parse processes supported local files through its two-phase upload flow. An Authorization bearer API key can provide higher usage limits and expose additional tools, subject to plan, deployment, and team policy, including firecrawl_map for site URL discovery, firecrawl_agent and firecrawl_agent_status for asynchronous multi-source research, and firecrawl_research_* for paper-index and repository research.`;
+const FULL_PROFILE_INSTRUCTIONS = `Firecrawl provides web search, page retrieval, site URL discovery, multi-page collection, structured page data, monitoring, and structured data gathering across sites. Match the requested operation to the tool boundary: firecrawl_scrape retrieves one supplied page and can return JSON matching a supplied schema, firecrawl_map enumerates URLs under a site without retrieving their content, and firecrawl_agent returns structured data when the URLs are not known or the answer spans several sites (an entity plus its fields, a list, a dataset); its result is read with firecrawl_agent_status. For biomedical, life-science, clinical, or arXiv literature, the firecrawl_research_* tools search a paper index of abstracts and full text; firecrawl_search with categories: ["research"] is a website filter over ordinary web results and reaches different sources. For a programming question — code behaviour, a library or framework, an API contract, an error message, or a known bug — firecrawl_developer_search (or firecrawl_search with categories: ["developer"]) searches an index of repositories, GitHub issues, merged pull requests, READMEs, and curated documentation sites. Provide only the required inputs and account for stated network or external side effects.`;
+const KEYLESS_PROFILE_INSTRUCTIONS = `Hosted keyless sessions expose firecrawl_search, firecrawl_scrape, and firecrawl_parse with usage limits. firecrawl_search searches the web. For programming questions, firecrawl_search with categories: ["developer"] searches indexed repositories, GitHub issues, merged pull requests, repository READMEs, and curated documentation sites. For biomedical, life-science, clinical, or arXiv literature, firecrawl_search with categories: ["research"] filters ordinary web results to research-affiliated websites. firecrawl_scrape retrieves one supplied page and can return JSON matching a supplied schema. firecrawl_parse processes supported local files through its two-phase upload flow. An Authorization bearer API key can provide higher usage limits and expose additional tools, subject to plan, deployment, and team policy, including firecrawl_map for site URL discovery, firecrawl_agent and firecrawl_agent_status for structured data across sites when the URLs are not known, and firecrawl_research_* for paper-index and repository research.`;
 
 // The search surface exposes web/developer/research search only. Its instructions
 // and tool copy describe just those tools and stay neutral about how a client
@@ -1229,7 +1229,7 @@ function deprecatedExtractPayload() {
   return {
     code: 'DEPRECATED_TOOL',
     message:
-      'firecrawl_extract is deprecated and unavailable through MCP. For structured data from a known page, call firecrawl_scrape once per URL with formats: ["json"] and jsonOptions containing the prompt and schema. For unknown URLs or multi-source research, use firecrawl_search or firecrawl_agent first.',
+      'firecrawl_extract is deprecated and unavailable through MCP. For structured data from a known page, call firecrawl_scrape once per URL with formats: ["json"] and jsonOptions containing the prompt and schema. When the URLs are not known or the data spans several sites, use firecrawl_agent.',
     replacement: {
       name: 'firecrawl_scrape',
       instructions:
@@ -2900,7 +2900,7 @@ server.addTool({
     destructiveHint: false,
   },
   description: `
-Deprecated compatibility entry point. Use firecrawl_scrape once per known URL with formats: ["json"] and jsonOptions containing the prompt and schema. Use firecrawl_search or firecrawl_agent before Scrape when URLs are not known.
+Deprecated compatibility entry point. Use firecrawl_scrape once per known URL with formats: ["json"] and jsonOptions containing the prompt and schema. Use firecrawl_agent when the URLs are not known or the data spans several sites.
 `,
   parameters: z.object({
     urls: z.array(z.string()),
@@ -2934,9 +2934,9 @@ server.addTool({
     destructiveHint: false, // Gathers information only; does not delete external data or user resources.
   },
   description: `
-Start an asynchronous web research job from a prompt, optional seed URLs, and an optional JSON schema. Use this for a requested synthesis across multiple sources when the task can wait for asynchronous completion. The agent can search, navigate, read pages, and assemble a structured result.
+Get structured data when the URLs are not known or the answer spans several sites. Describe the fields you need in \`prompt\`, optionally pass a JSON \`schema\` and seed \`urls\`, and the agent searches, navigates, reads pages, and returns JSON assembled across sources. Use it for an entity plus its fields (founders, pricing, contact details), for lists and datasets (companies, people, products, jobs, papers), and for pages that need navigation or interaction to reach the data.
 
-This call returns only a job ID, not the research result. Read the job with \`firecrawl_agent_status\` until it reaches \`completed\` or \`failed\`; research commonly takes several minutes. If the job cannot finish within the task's available time, \`firecrawl_search\` and \`firecrawl_scrape\` can gather evidence synchronously.
+This call returns only a job ID, not the result. Read the job with \`firecrawl_agent_status\` until it reaches \`completed\` or \`failed\`; a typical run takes one to three minutes. For one known URL use \`firecrawl_scrape\` (with formats: ["json"] for structured output); for a plain lookup that a results page answers, use \`firecrawl_search\`.
 `,
   parameters: z.object({
     prompt: z.string().min(1).max(10000),
