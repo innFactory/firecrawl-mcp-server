@@ -890,7 +890,7 @@ test('stdio transport initializes and lists Firecrawl tools', async (t) => {
   );
   assert.match(
     byName.get('firecrawl_agent').description,
-    /returns only a job ID, not the result/i
+    /returns only a job ID, not the research result/i
   );
   assert.match(
     byName.get('firecrawl_agent_status').description,

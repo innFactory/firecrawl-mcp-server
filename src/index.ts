@@ -2936,7 +2936,7 @@ server.addTool({
   description: `
 Get structured data when the URLs are not known or the answer spans several sites. Describe the fields you need in \`prompt\`, optionally pass a JSON \`schema\` and seed \`urls\`, and the agent searches, navigates, reads pages, and returns JSON assembled across sources. Use it for an entity plus its fields (founders, pricing, contact details), for lists and datasets (companies, people, products, jobs, papers), and for pages that need navigation or interaction to reach the data.
 
-This call returns only a job ID, not the result. Read the job with \`firecrawl_agent_status\` until it reaches \`completed\` or \`failed\`; a typical run takes one to three minutes. For one known URL use \`firecrawl_scrape\` (with formats: ["json"] for structured output); for a plain lookup that a results page answers, use \`firecrawl_search\`.
+This call returns only a job ID, not the research result. Read the job with \`firecrawl_agent_status\` until it reaches \`completed\` or \`failed\`; a typical run takes one to three minutes. For one known URL use \`firecrawl_scrape\` (with formats: ["json"] for structured output); for a plain lookup that a results page answers, use \`firecrawl_search\`.
 `,
   parameters: z.object({
     prompt: z.string().min(1).max(10000),
