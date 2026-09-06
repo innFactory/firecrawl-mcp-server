@@ -3,11 +3,11 @@ name: Deploy Images to GHCR staging
 env:
   DOTNET_VERSION: '6.0.x'
 
+# innFactory fork: der push-Trigger ist entfernt. Dieser Workflow gehoert
+# upstream und wuerde nach ghcr.io/firecrawl/... pushen — in diesem Fork
+# scheitert er bei jedem Push auf main mit permission_denied und verdeckt
+# damit echte Fehlschlaege. Nur noch manuell ausloesbar.
 on:
-  push:
-    branches:
-      - staging
-      - fastmcp
   workflow_dispatch:
 
 
