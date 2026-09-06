@@ -2972,7 +2972,7 @@ server.addTool({
     destructiveHint: false, // Read-only status check.
   },
   description: `
-Retrieve progress or final results for a \`firecrawl_agent\` job ID. A \`processing\` response is non-terminal and does not contain the final research result. Check again after 15–30 seconds until the status is \`completed\` or \`failed\`; complex jobs can take several minutes. If the job cannot finish within the task's available time, use \`firecrawl_search\` and \`firecrawl_scrape\` to complete the requested output.
+Retrieve progress or final results for a \`firecrawl_agent\` job ID. A \`processing\` response is non-terminal and does not contain the final research result. Check again after 15–30 seconds until the status is \`completed\` or \`failed\`; a typical run takes one to three minutes and complex jobs can take longer. If the job cannot finish within the task's available time, use \`firecrawl_search\` and \`firecrawl_scrape\` to complete the requested output.
 
 Returns job status, progress information, and result data when completed.
 `,
