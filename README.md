@@ -292,7 +292,7 @@ Use this guide to select the right tool for your task:
 - **If you want to search the web for info:** use **search**
 - **If you have a programming question** (a library, an API contract, an error message, a known bug): use **developer search**
 - **If you need scientific papers** (biomedical, life-science, clinical, or arXiv literature): use **research tools** — they search paper abstracts and full text. `search` with `categories: ["research"]` is a different thing: a website filter over ordinary web results.
-- **If you need structured data and do not know the URLs, or the answer spans several sites** (an entity plus its fields, a list, a dataset): use **agent**
+- **If you need multi-source research that returns structured data, do not know the URLs, or the answer spans several sites** (an entity plus its fields, a list, a dataset): use **agent**
 - **If you want to analyze a whole site or section:** use **crawl** (with limits!)
 - **If you need interactive browser automation** (click, type, navigate): use **interact** with a URL for a fresh page, or **scrape** + **interact** when you already scraped the page or need tighter scrape control
 
@@ -307,7 +307,7 @@ Use this guide to select the right tool for your task:
 | parse        | Files and hosted upload refs                   | markdown, JSON, or document output |
 | search       | Web search for info                            | results[]                      |
 | developer    | Programming questions over developer sources   | results[] with passages        |
-| agent        | Structured data across unknown or many sites   | JSON (structured data)         |
+| agent        | Multi-source research, unknown or many sites   | JSON (structured data)         |
 | monitor      | Recurring page checks                          | monitor/check metadata and diffs |
 | research     | Paper and GitHub repository research           | research results and repo matches |
 
@@ -685,11 +685,11 @@ For structured data from a known page, call `firecrawl_scrape` once per URL with
 }
 ```
 
-When the URLs are not known or the data spans several sites, use `firecrawl_agent`.
+When the URLs are not known or the data spans several sites, use `firecrawl_agent` for multi-source research.
 
 ### 8. Agent Tool (`firecrawl_agent`)
 
-Structured data when you do not know the URLs or the answer spans several sites. Describe the fields you need, optionally pass a JSON schema and seed URLs, and the agent searches, navigates, reads pages, and returns JSON assembled across sources. Use it for an entity plus its fields, for lists and datasets, and for pages that need navigation to reach the data. For one known URL use `firecrawl_scrape` with JSON format instead.
+Autonomous web research agent that returns structured data when you do not know the URLs or the answer spans several sites. Describe the fields you need, optionally pass a JSON schema and seed URLs, and the agent searches, navigates, reads pages, and returns JSON assembled across sources. Use it for an entity plus its fields, for lists and datasets, and for pages that need navigation to reach the data. For one known URL use `firecrawl_scrape` with JSON format instead.
 
 **How it works:**
 
